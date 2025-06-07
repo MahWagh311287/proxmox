@@ -1,0 +1,105 @@
+# Proxmox VM Auto-Install with Kickstart (RHEL) & Autoinstall (Ubuntu)
+
+## Step 1: Nginx Web Server Install Karein (Proxmox Server Par)
+
+```bash
+sudo apt update
+sudo apt install nginx -y
+```
+
+---
+
+## Step 2: Kickstart & Autoinstall Files Banayein
+
+- **RHEL ke liye:**  
+  `ks-rhel.cfg` file banayein (partition, user, etc. ka config likhein)
+- **Ubuntu ke liye:**  
+  `user-data-ubuntu` file banayein (autoinstall YAML likhein)
+
+---
+
+## Step 3: Files Ko Nginx Web Directory Me Copy Karein
+
+```bash
+sudo cp ks-rhel.cfg /var/www/html/
+sudo cp user-data-ubuntu /var/www/html/
+```
+
+---
+
+## Step 4: Permissions Set Karein
+
+```bash
+sudo chown www-data:www-data /var/www/html/ks-rhel.cfg
+sudo chown www-data:www-data /var/www/html/user-data-ubuntu
+sudo chmod 644 /var/www/html/ks-rhel.cfg
+sudo chmod 644 /var/www/html/user-data-ubuntu
+```
+
+---
+
+## Step 5: Nginx Service Start/Restart Karein
+
+```bash
+sudo systemctl restart nginx
+sudo systemctl enable nginx
+```
+
+---
+
+## Step 6: File Access Test Karein
+
+Browser ya curl se test karein (Proxmox server ka IP use karein):
+
+- RHEL Kickstart:  
+  `http://<proxmox-ip>/ks-rhel.cfg`
+- Ubuntu Autoinstall:  
+  `http://<proxmox-ip>/user-data-ubuntu`
+
+---
+
+## Step 7: Terraform Vars Me URL Set Karein
+
+**terraform.tfvars** me URLs aise likhein:
+
+```hcl
+rhel_ks_url            = "http://<proxmox-ip>/ks-rhel.cfg"
+ubuntu_autoinstall_url = "http://<proxmox-ip>/user-data-ubuntu/"
+```
+> **Note:** Ubuntu ke URL ke end me `/` laga dein.
+
+---
+
+## Step 8: Terraform Apply Karein
+
+```bash
+terraform init
+terraform apply
+```
+
+---
+
+## Summary Table
+
+| Step | Command/Action | Purpose |
+|------|---------------|---------|
+| 1    | `sudo apt install nginx -y` | Nginx install karein |
+| 2    | Files banayein | Kickstart & autoinstall config |
+| 3    | Files copy karein | `/var/www/html/` me |
+| 4    | Permissions set karein | Web access ke liye |
+| 5    | `sudo systemctl restart nginx` | Nginx start/restart karein |
+| 6    | Browser/curl se test karein | File accessible hai ya nahi |
+| 7    | Terraform vars update karein | URLs set karein |
+| 8    | `terraform apply` | VMs banayein |
+
+---
+
+## Notes
+
+- Proxmox server ko web server ki tarah use kar sakte hain.
+- Kickstart/autoinstall file jab bhi update karein, wahi process follow karein.
+- Terraform config me args ka logic automatic hai, aapko sirf URLs sahi rakhne hain.
+
+---
+
+Agar koi error aaye ya aur detail chahiye toh pooch sakte hain!
