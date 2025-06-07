@@ -1,0 +1,43 @@
+#cloud-config
+autoinstall:
+  version: 1
+  identity:
+    hostname: ubuntu-server
+    username: admin
+    password: "$6$rounds=4096$YourHashedPasswordHere"
+  ssh:
+    install-server: true
+    authorized-keys:
+      - ssh-rsa AAAAB3NzaC1y... user@example.com
+  locale: en_US.UTF-8
+  keyboard:
+    layout: us
+  storage:
+    layout:
+      name: custom
+    swap:
+      size: 2147483648  # 2GB swap
+    config:
+      - type: partition
+        id: boot
+        size: 1073741824  # 1GB
+        flag: boot
+        device: disk0
+        number: 1
+        preserve: false
+        wipe: superblock
+        filesystem: ext4
+        mount: /boot
+      - type: partition
+        id: root
+        size: -1
+        device: disk0
+        number: 2
+        preserve: false
+        wipe: superblock
+        filesystem: ext4
+        mount: /
+  user-data:
+    disable_root: false
+  late-commands:
+    - echo "Provisioned by Terraform Autoinstall" > /target/etc/motd
